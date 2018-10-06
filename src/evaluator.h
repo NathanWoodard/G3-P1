@@ -1,6 +1,11 @@
 #ifndef EVALUATOR_H
 #define EVALUATOR_H
 #include <string>
+#include <sstream>
+#include <cctype>
+
+using std::istringstream;
+using std::isdigit;
 using std::string;
 class Evaluator {
     private:
@@ -10,6 +15,7 @@ class Evaluator {
     public:
         Evaluator(void);
         int evaluate(string & rawExpression);
+        void parser(string expresion);
 
 };
 #endif
