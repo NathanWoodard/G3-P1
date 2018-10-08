@@ -105,3 +105,21 @@ bool Evaluator::precedenceCompare(string op1, string op2) // returns false if th
 		return false;
 	return true;
 }
+void Evaluator::parser(string expression) {
+	istringstream tokens(expression);
+	char next_char;
+
+	while (tokens >> next_char) {					//Token took out char
+		if (isdigit(next_char)) {				//Test is the char is digit
+			tokens.putback(next_char);			//Token put back char
+			//stack funtion
+		}
+		else if (isOperator(next_char)) {			//Test char if is operator... Need to create "is_operator"funtion
+		// code for compare the operator and decided to throw in stuck or not
+		}
+		else {
+			throw std::logic_error("Invalid charator error");   //if char is not digit or operator that allowed. 
+		}
+	}
+
+}
