@@ -98,23 +98,11 @@ string Evaluator::addSpaces(string expression)
 					spaced_expression += expression[i + 1];
 					++i;
 				}
-				if (current_char == '-' && isdigit(expression[i + 1]))
+				if (current_char == '-' && isdigit(expression[i + 1])) //replaces the - for a negative with a _
 				{
 					spaced_expression = spaced_expression.substr(0, spaced_expression.length() - 1);
 					spaced_expression += "_";
 				}
-				//checks for negative numbers and adds them to expression as a number that is negative
-				/*{
-					++i;
-					current_char = expression[i];
-					while (isdigit(current_char))
-					{
-						spaced_expression += current_char;
-						++i;
-						current_char = expression[i];
-					}
-					--i;
-				}*/
 			}
 			if ((current_char == '>' || current_char == '<' || current_char == '=' || current_char == '!') && expression[i + 1] == '=') //comparison operators
 			{
@@ -131,7 +119,6 @@ string Evaluator::addSpaces(string expression)
 	}
 	return spaced_expression;
 }
-/* TWO WAYS TO MAKE POSTFIX:: REVERSE IN PLACE FACTORING IN MINUS, OR REVERSE AFTER SPACED SO MINUS IS IRRELEVANT*/
 bool Evaluator::precedenceCompare(string op1, string op2) // returns false if the op2 has higher precedence and true otherwise
 {
 	string operator1 = " " + op1 + " "; //spaces added to differentiate between operators such as ++ and +
@@ -163,7 +150,7 @@ int Evaluator::parser(string expression) {
 
 	while (tokens >> next_char) {
 		if (isdigit(next_char)) {
-			tokens.putback(next_char); //next_next_char is used to check if there is a minus operator since it is put together with this number
+			tokens.putback(next_char); 
 			tokens >> value;
 			operand_stack.push(value);
 		}
@@ -218,18 +205,6 @@ int Evaluator::parser(string expression) {
 				}
 				else
 				{
-					/*tokens >> next_char;
-					while (!isdigit(next_char))
-					{
-						tokens.putback(next_char);
-						tokens >> op;
-						operator_stack.push(op);
-						tokens >> next_char;
-					}
-					tokens.putback(next_char);
-					int oper1;
-					tokens >> oper1;
-					operand_stack.push(oper1);*/
 					int oper1;
 					while (!operator_stack.empty() && precedenceCompare(operator_stack.top(), op) && binary_op.find(" " +op+ " ") != string::npos)
 					{
