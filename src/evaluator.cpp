@@ -154,6 +154,7 @@ bool Evaluator::precedenceCompare(string op1, string op2) // returns false if th
 	return true;
 }
 int Evaluator::parser(string expression) {
+	expression = addSpaces(expression);
 	istringstream tokens(expression);
 	string binary_op = " + - / * ^ < <= > >= == != && || ";
 	char next_char;
