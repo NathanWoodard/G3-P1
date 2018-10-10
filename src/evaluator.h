@@ -13,7 +13,7 @@ using std::stack;
 class Evaluator {
 public:
 	Evaluator();
-	int parser(string expresion);
+	int evaluate(string expresion);
 private:
 	stack <string> operator_stack;
 	stack <int> operand_stack;
