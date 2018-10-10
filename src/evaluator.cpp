@@ -26,7 +26,7 @@ int Evaluator::evaluate(string op, int op1, int op2) {
 	else if (op == "/")
 		return op1 / op2;
 	else if (op == "^")
-		return int(pow(op1, op2));
+		return pow(op1, op2);
 	else if (op == "<")
 		return op1 < op2;
 	else if (op == "<=")
@@ -100,7 +100,7 @@ string Evaluator::addSpaces(string expression)
 					spaced_expression += expression[i + 1];
 					++i;
 				}
-				if (current_char == '-' && isdigit(expression[i + 1])) //replaces the - for a negative with a _
+				else if (current_char == '-' && isdigit(expression[i + 1])) //replaces the - for a negative with a _
 				{
 					spaced_expression = spaced_expression.substr(0, spaced_expression.length() - 1);
 					spaced_expression += "_";
@@ -185,14 +185,14 @@ int Evaluator::parser(string expression) {
 						cout << "Error: Cannot divide by zero\n";
 						return 0;
 					}
-					operand_stack.push(evaluate(op, oper1, oper2));
+					operand_stack.push(evaluate(operator_stack.top(), oper1, oper2));
 				}
 				else
 				{
 					int oper1;
 					oper1 = operand_stack.top();
 					operand_stack.pop();
-					operand_stack.push(evaluate(op, oper1));
+					operand_stack.push(evaluate(operator_stack.top(), oper1));
 				}
 				operator_stack.pop();
 			}
@@ -217,7 +217,7 @@ int Evaluator::parser(string expression) {
 						cout << "Error: Cannot divide by zero\n";
 						return 0;
 					}
-					operand_stack.push(evaluate(op, oper1, oper2));
+					operand_stack.push(evaluate(operator_stack.top(), oper1, oper2));
 					operator_stack.pop();
 				}
 				else
@@ -258,7 +258,7 @@ int Evaluator::parser(string expression) {
 				cout << "Error: Cannot divide by zero\n";
 				return 0;
 			}
-			operand_stack.push(evaluate(op, oper1, oper2));
+			operand_stack.push(evaluate(operator_stack.top(), oper1, oper2));
 		}
 		else
 		{
