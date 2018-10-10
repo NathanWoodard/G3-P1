@@ -223,7 +223,7 @@ int Evaluator::parser(string expression) {
 				else
 				{
 					int oper1;
-					while (!operator_stack.empty() && precedenceCompare(operator_stack.top(), op) && binary_op.find(" " + op + " ") != string::npos)
+					while (!operator_stack.empty() && precedenceCompare(operator_stack.top(), op) && binary_op.find(" " + op + " ") != string::npos && binary_op.find(" "+operator_stack.top()+" ") == string::npos)
 					{
 						oper1 = operand_stack.top();
 						operand_stack.pop();
@@ -234,6 +234,11 @@ int Evaluator::parser(string expression) {
 				}
 			}
 			operator_stack.push(op);
+		}
+		else
+		{
+			cout << "Error: Invalid character\n";
+			return 0;
 		}
 
 	}
@@ -253,7 +258,7 @@ int Evaluator::parser(string expression) {
 			}
 			oper1 = operand_stack.top();
 			operand_stack.pop();
-			if (oper2 == 0 && op == "/")
+			if (oper2 == 0 && operator_stack.top() == "/")
 			{
 				cout << "Error: Cannot divide by zero\n";
 				return 0;
