@@ -140,6 +140,7 @@ bool Evaluator::precedenceCompare(string op1, string op2) // returns false if th
 		return false;
 	return true;
 }
+
 int Evaluator::parser(string expression) {
 	expression = addSpaces(expression);
 	istringstream tokens(expression);
@@ -243,5 +244,4 @@ int Evaluator::parser(string expression) {
 		operator_stack.pop();
 	}
 	return operand_stack.top();
-
 }
