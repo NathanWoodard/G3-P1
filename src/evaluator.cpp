@@ -4,17 +4,19 @@
 #include <cctype>
 #include <stack>
 #include <cmath>
+#include <iostream>
 
 using std::istringstream;
 using std::isdigit;
 using std::string;
 using std::stack;
+using std::cout;
 
 Evaluator::Evaluator(void) {
 
 }
 
-int Evaluator::evaluate(string op,int op1, int op2) {
+int Evaluator::evaluate(string op, int op1, int op2) {
 	if (op == "+")
 		return op1 + op2;
 	else if (op == "-")
@@ -56,7 +58,7 @@ int Evaluator::evaluate(string op,int op1, int op2) {
 bool Evaluator::isOperator(char token)
 {
 
-	const char operatorTokens[] = "!+-_^*/%><=&|"; //REMOVED PARENTHESES
+	const char operatorTokens[] = "({[]})!+-_^*/%><=&|"; //REMOVED PARENTHESES
 	const int OPERATOR_TOKEN_COUNT = strlen(operatorTokens);
 	for (int i = 0; i < OPERATOR_TOKEN_COUNT; i++) {
 		if (token == operatorTokens[i])
@@ -69,7 +71,7 @@ string Evaluator::addSpaces(string expression)
 	char current_char;
 	string spaced_expression = "";
 	string previous_type = "None";
-	for (unsigned int i = 0;i < expression.length();++i) //iterate over entire string
+	for (unsigned int i = 0; i < expression.length(); ++i) //iterate over entire string
 	{
 		current_char = expression[i];
 		if (isdigit(current_char)) //GETTING THE FULL NUMBER
@@ -123,7 +125,7 @@ bool Evaluator::precedenceCompare(string op1, string op2) // returns false if th
 {
 	string operator1 = " " + op1 + " "; //spaces added to differentiate between operators such as ++ and +
 	string operator2 = " " + op2 + " ";
-	string precedence[9] = {" ! ++ -- _ ", " ^ ", " * / % ", " + - ", " > >= < <= ", " == != ", "&& ", " || " }; //array of precedences
+	string precedence[9] = { " ! ++ -- _ ", " ^ ", " * / % ", " + - ", " > >= < <= ", " == != ", "&& ", " || " }; //array of precedences
 	int op1_prec;
 	int op2_prec;
 	for (op1_prec = 0; op1_prec < 9; ++op1_prec) //if the string is in the element it breaks with that being the precedence
@@ -140,7 +142,6 @@ bool Evaluator::precedenceCompare(string op1, string op2) // returns false if th
 		return false;
 	return true;
 }
-
 int Evaluator::parser(string expression) {
 	expression = addSpaces(expression);
 	istringstream tokens(expression);
@@ -151,11 +152,11 @@ int Evaluator::parser(string expression) {
 
 	while (tokens >> next_char) {
 		if (isdigit(next_char)) {
-			tokens.putback(next_char); 
+			tokens.putback(next_char);
 			tokens >> value;
 			operand_stack.push(value);
 		}
-		else if (next_char == '(' || next_char == '{' || next_char == '[')	
+		else if (next_char == '(' || next_char == '{' || next_char == '[')
 		{
 			tokens.putback(next_char);
 			tokens >> op;
@@ -164,6 +165,11 @@ int Evaluator::parser(string expression) {
 
 		else if (next_char == ')' || next_char == '}' || next_char == ']')
 		{
+			if (operator_stack.empty())
+			{
+				cout << "Error: Close Parentheses without matching open parentheses\n";
+				return 0;
+			}
 			while (operator_stack.top() != "(" && operator_stack.top() != "{" && operator_stack.top() != "[")
 			{
 				if (binary_op.find(" " + op + " ") != string::npos)
@@ -174,6 +180,11 @@ int Evaluator::parser(string expression) {
 					operand_stack.pop();
 					oper1 = operand_stack.top();
 					operand_stack.pop();
+					if (oper2 == 0 && op == "/")
+					{
+						cout << "Error: Cannot divide by zero\n";
+						return 0;
+					}
 					operand_stack.push(evaluate(op, oper1, oper2));
 				}
 				else
@@ -201,38 +212,53 @@ int Evaluator::parser(string expression) {
 					operand_stack.pop();
 					oper1 = operand_stack.top();
 					operand_stack.pop();
-					operand_stack.push(evaluate(operator_stack.top(), oper1, oper2));
+					if (oper2 == 0 && op == "/")
+					{
+						cout << "Error: Cannot divide by zero\n";
+						return 0;
+					}
+					operand_stack.push(evaluate(op, oper1, oper2));
 					operator_stack.pop();
 				}
 				else
 				{
 					int oper1;
-					while (!operator_stack.empty() && precedenceCompare(operator_stack.top(), op) && binary_op.find(" " +op+ " ") != string::npos)
+					while (!operator_stack.empty() && precedenceCompare(operator_stack.top(), op) && binary_op.find(" " + op + " ") != string::npos)
 					{
 						oper1 = operand_stack.top();
 						operand_stack.pop();
 						operand_stack.push(evaluate(operator_stack.top(), oper1));
-						operator_stack.pop();																//READS IN WRONG CHARACTER
+						operator_stack.pop();
 					}
 					break;
 				}
 			}
 			operator_stack.push(op);
 		}
-	
+
 	}
 	while (!operator_stack.empty())
 	{
-		
-		if (binary_op.find(" " +operator_stack.top()+ " ") != string::npos)
+
+		if (binary_op.find(" " + operator_stack.top() + " ") != string::npos)
 		{
 			int oper1;
 			int oper2;
 			oper2 = operand_stack.top();
 			operand_stack.pop();
+			if (operand_stack.empty())
+			{
+				cout << "Error: Binary operator without two operands\n";
+				return 0;
+			}
 			oper1 = operand_stack.top();
 			operand_stack.pop();
-			operand_stack.push(evaluate(operator_stack.top(), oper1, oper2));
+			if (oper2 == 0 && op == "/")
+			{
+				cout << "Error: Cannot divide by zero\n";
+				return 0;
+			}
+			operand_stack.push(evaluate(op, oper1, oper2));
 		}
 		else
 		{
@@ -243,5 +269,11 @@ int Evaluator::parser(string expression) {
 		}
 		operator_stack.pop();
 	}
+	if (operand_stack.size() != 1)
+	{
+		cout << "Error: Two operands in a row\n";
+		return 0;
+	}
 	return operand_stack.top();
+
 }
