@@ -37,11 +37,11 @@ string Evaluator::addSpaces(string expression)
 			previous_type = "Number";
 			spaced_expression += " ";
 		}
-		
+
 		if (ExpressionOperator::isOperator(current_char)) //GETTING THE FULL OPERATOR
 		{
 			spaced_expression += current_char;
-			
+
 			if (current_char == expression[i + 1] && (current_char == '&' || current_char == '|'))
 			{
 				spaced_expression += expression[i + 1];
@@ -76,34 +76,34 @@ string Evaluator::addSpaces(string expression)
 	return spaced_expression;
 }
 
-int Evaluator::parser(string expression) {
-	expression = addSpaces(expression);
+int Evaluator::evaluate(string expression) {
+	expression = addSpaces(expression); //formats the expression properly with operators spaced
 	istringstream tokens(expression);
 	char next_char;
 	string op;
 	int value;
 
-	while (tokens >> next_char) {
-		if (isdigit(next_char)) {
+	while (tokens >> next_char) { //read in values until you cant anymore
+		if (isdigit(next_char)) {													//NUMBER
 			tokens.putback(next_char);
 			tokens >> value;
 			operand_stack.push(value);
 		}
-		else if (next_char == '(' || next_char == '{' || next_char == '[')
+		else if (next_char == '(' || next_char == '{' || next_char == '[')			//OPEN PARENTHESES
 		{
 			tokens.putback(next_char);
 			tokens >> op;
 			operator_stack.push(op);
 		}
 
-		else if (next_char == ')' || next_char == '}' || next_char == ']')
+		else if (next_char == ')' || next_char == '}' || next_char == ']')			//CLOSE PARENTHESES
 		{
 			if (operator_stack.empty())
 			{
 				cout << "Error: Close Parentheses without matching open parentheses\n";
 				return 0;
 			}
-			while (operator_stack.top() != "(" && operator_stack.top() != "{" && operator_stack.top() != "[")
+			while (operator_stack.top() != "(" && operator_stack.top() != "{" && operator_stack.top() != "[") //does all operations till it reaches an open parentheses
 			{
 				if (ExpressionOperator::isBinary(op))
 				{
@@ -131,13 +131,13 @@ int Evaluator::parser(string expression) {
 			}
 			operator_stack.pop();
 		}
-		else if (ExpressionOperator::isOperator(next_char))
+		else if (ExpressionOperator::isOperator(next_char))							//OPERATORS
 		{
 			tokens.putback(next_char);
 			tokens >> op;
-			while (!operator_stack.empty() && ExpressionOperator::comparePrecedence(operator_stack.top(), op))
+			while (!operator_stack.empty() && ExpressionOperator::comparePrecedence(operator_stack.top(), op)) //while the top has a higher precedence than op
 			{
-				if (ExpressionOperator::isBinary(operator_stack.top()))
+				if (ExpressionOperator::isBinary(operator_stack.top())) //binary operations
 				{
 					int oper1;
 					int oper2;
@@ -145,7 +145,7 @@ int Evaluator::parser(string expression) {
 					operand_stack.pop();
 					oper1 = operand_stack.top();
 					operand_stack.pop();
-					if (oper2 == 0 && op == "/")
+					if (oper2 == 0 && op == "/") //checks for arithmetic errors
 					{
 						cout << "Error: Cannot divide by zero\n";
 						return 0;
@@ -153,7 +153,7 @@ int Evaluator::parser(string expression) {
 					operand_stack.push(ExpressionOperator::evaluate(operator_stack.top(), oper1, oper2));
 					operator_stack.pop();
 				}
-				else
+				else //does all unary operations before moving onto the binary one
 				{
 					int oper1;
 					if (ExpressionOperator::isBinary(op)) {
@@ -172,30 +172,30 @@ int Evaluator::parser(string expression) {
 		}
 
 	}
-	while (!operator_stack.empty())
+	while (!operator_stack.empty()) //once all values are read do operations until none left
 	{
 
-		if (ExpressionOperator::isBinary(op))
+		if (ExpressionOperator::isBinary(op)) //binary operations
 		{
 			int oper1;
 			int oper2;
 			oper2 = operand_stack.top();
 			operand_stack.pop();
-			if (operand_stack.empty())
+			if (operand_stack.empty()) //checks if the stack is empty and if it is puts out an error
 			{
 				cout << "Error: Binary operator without two operands\n";
 				return 0;
 			}
 			oper1 = operand_stack.top();
 			operand_stack.pop();
-			if (oper2 == 0 && op == "/")
+			if (oper2 == 0 && op == "/") //divide by zero error check
 			{
 				cout << "Error: Cannot divide by zero\n";
 				return 0;
 			}
 			operand_stack.push(ExpressionOperator::evaluate(operator_stack.top(), oper1, oper2));
 		}
-		else
+		else //unary operations
 		{
 			int oper1;
 			oper1 = operand_stack.top();
@@ -204,11 +204,11 @@ int Evaluator::parser(string expression) {
 		}
 		operator_stack.pop();
 	}
-	if (operand_stack.size() != 1)
+	if (operand_stack.size() != 1) //checks if there are more values in operand_stack than just the final value
 	{
 		cout << "Error: Two operands in a row\n";
 		return 0;
 	}
-	return operand_stack.top();
+	return operand_stack.top(); //returns the final value
 
 }
